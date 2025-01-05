@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeoGuessing Spiel mit echten Fotos</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      #hint {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      #map {
+        width: 100%;
+        height: 500px;
+      }
+
+      /* Container für Button und Ergebnis-Text */
+      #controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px; /* Abstand zwischen den Controls und der Karte */
+        padding: 20px;
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.8
+        ); /* Hintergrundfarbe für bessere Sichtbarkeit */
+      }
+
+      #controls button {
+        font-size: 18px; /* Größerer Button */
+        padding: 10px 20px;
+        margin-bottom: 10px; /* Abstand unter dem Button */
+        cursor: pointer;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+
+      #controls p {
+        font-size: 20px; /* Größerer Text für das Ergebnis */
+        font-weight: bold;
+        color: #333;
+      }
+
+      #image-container {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      /* Reduziere die Bildgröße */
+      #place-image {
+        width: 100%;
+        max-width: 500px; /* Maximalgröße des Bildes */
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 style="text-align: center">GeoGuessing Spiel mit echten Fotos</h1>
+
+    <!-- Bild des gesuchten Ortes -->
+    <div id="image-container">
+      <h3>
+        Rate den Ort! Schau dir das Bild an und klicke auf die Karte, um deinen
+        Tipp abzugeben.
+      </h3>
+      <img id="place-image" src="" alt="Geheimer Ort" />
+    </div>
+
+    <!-- Container für Button und Ergebnis -->
+    <div id="controls">
+      <button onclick="checkGuess()">Tipp abgeben</button>
+      <p id="result"></p>
+    </div>
+
+    <!-- Karte -->
+    <div id="map"></div>
+
+    <script>
+      const unsplashAPIKey = "Mr1wEHuBu2cciOg03IqC79ESugoY6g_LaTuf2iMUrys"; // Dein Unsplash API-Schlüssel
+      let realCoordinates = {}; // Hier speichern wir die Koordinaten des echten Ortes
+      let map;
+      let guessMarker = null;
+
+      // Unsplash API Anfrage, um ein Foto eines zufälligen Ortes zu erhalten
+      function getRandomLocationImage() {
+        fetch(
+          `https://api.unsplash.com/photos/random?client_id=${unsplashAPIKey}&count=1`
+        )
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Fehler bei der API-Anfrage");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.length > 0) {
+              const photo = data[0];
+              const imageUrl = photo.urls.regular;
+              const location = photo.location;
+
+              // Das Bild wird auf der Webseite angezeigt
+              document.getElementById("place-image").src = imageUrl;
+
+              // Wenn keine exakten Koordinaten vorhanden sind, setzen wir Wien als Standard
+              if (location && location.position) {
+                realCoordinates = {
+                  lat: location.position.latitude,
+                  lng: location.position.longitude,
+                };
+              } else {
+                // Wien als Standardposition (48.2082° N, 16.3738° O)
+                realCoordinates = { lat: 48.2082, lng: 16.3738 };
+              }
+
+              console.log("Geheimer Ort:", realCoordinates);
+              initMap(); // Karte initialisieren, nachdem die Koordinaten geladen sind
+            } else {
+              console.error("Kein Bild von Unsplash erhalten.");
+            }
+          })
+          .catch((error) => {
+            console.error("Fehler beim Laden des Bildes:", error);
+          });
+      }
+
+      // Initialisiere die Karte
+      function initMap() {
+        // Überprüfe, ob die realCoordinates gesetzt sind
+        if (!realCoordinates.lat || !realCoordinates.lng) {
+          console.error("Die Koordinaten des Ortes wurden nicht gefunden.");
+          return;
+        }
+
+        map = L.map("map").setView(
+          [realCoordinates.lat, realCoordinates.lng],
+          3
+        ); // Zoom-Level auf 3 gesetzt für einen weiteren Blick
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "© OpenStreetMap",
+        }).addTo(map);
+
+        // Event listener für das Klicken auf die Karte, um den Tipp zu setzen
+        map.on("click", (event) => {
+          const { lat, lng } = event.latlng;
+
+          if (guessMarker) {
+            guessMarker.setLatLng([lat, lng]);
+          } else {
+            guessMarker = L.marker([lat, lng]).addTo(map);
+          }
+
+          console.log("Dein Tipp:", lat, lng);
+        });
+      }
+
+      // Tipp des Spielers überprüfen
+      function checkGuess() {
+        if (!guessMarker) {
+          alert("Bitte klicke auf die Karte, um einen Ort auszuwählen!");
+          return;
+        }
+
+        const guessLatLng = guessMarker.getLatLng();
+        const distance = calculateDistance(
+          guessLatLng.lat,
+          guessLatLng.lng,
+          realCoordinates.lat,
+          realCoordinates.lng
+        );
+
+        document.getElementById(
+          "result"
+        ).innerText = `Distanz zum geheimen Ort: ${distance.toFixed(2)} km`;
+      }
+
+      // Haversine-Formel zur Berechnung der Distanz
+      function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius der Erde in Kilometern
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+      }
+
+      // Starte das Spiel
+      function startGame() {
+        getRandomLocationImage();
+      }
+
+      startGame();
+    </script>
+  </body>
+</html>
