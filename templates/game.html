@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeoGuessing Spiel</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      #map {
+        width: 100%;
+        height: 500px;
+      }
+
+      #controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.8);
+      }
+
+      #controls button {
+        font-size: 18px;
+        padding: 10px 20px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+
+      #controls p {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      #image-container {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      #place-image {
+        width: 100%;
+        max-width: 500px;
+        margin-bottom: 20px;
+      }
+
+      #title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      #hint {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 style="text-align: center">GeoGuessing Spiel</h1>
+
+    <div id="image-container">
+      <img id="place-image" src="" alt="Geheimer Ort" />
+      <div id="title"></div>
+      <div id="hint"></div>
+    </div>
+
+    <div id="controls">
+      <button onclick="checkGuess()">Tipp abgeben</button>
+      <p id="result"></p>
+    </div>
+
+    <div id="map"></div>
+
+    <script>
+      const apiBaseUrl = "http://127.0.0.1:5000"; // Basis-URL der Flask-API
+      let realCoordinates = {}; // Koordinaten des echten Ortes
+      let map;
+      let guessMarker = null;
+
+      // Frage ein zufälliges Bild und Standortdaten von der Flask-API ab
+      function getRandomLocationImage() {
+        fetch(`${apiBaseUrl}/questions/1`) // Beispiel-ID: 1
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Fehler bei der API-Anfrage");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            const question = JSON.parse(data);
+
+            // Setze Bild, Titel, Hinweis und Standortdaten
+            document.getElementById("place-image").src = question.img;
+            document.getElementById("title").innerText = question.title;
+            document.getElementById("hint").innerText = question.hint;
+            realCoordinates = { lat: question.lat, lng: question.long };
+
+            console.log("Geheimer Ort:", realCoordinates);
+            initMap();
+          })
+          .catch((error) => {
+            console.error("Fehler beim Laden der Daten:", error);
+          });
+      }
+
+      // Initialisiere die Karte
+      function initMap() {
+        map = L.map("map").setView([0, 0], 1); // Start bei Zoom-Level 1
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "© OpenStreetMap",
+        }).addTo(map);
+
+        map.on("click", (event) => {
+          const { lat, lng } = event.latlng;
+
+          if (guessMarker) {
+            guessMarker.setLatLng([lat, lng]);
+          } else {
+            guessMarker = L.marker([lat, lng]).addTo(map);
+          }
+
+          console.log("Dein Tipp:", lat, lng);
+        });
+      }
+
+      // Überprüfe den Tipp
+      function checkGuess() {
+        if (!guessMarker) {
+          alert("Bitte klicke auf die Karte, um einen Ort auszuwählen!");
+          return;
+        }
+
+        const guessLatLng = guessMarker.getLatLng();
+        const distance = calculateDistance(
+          guessLatLng.lat,
+          guessLatLng.lng,
+          realCoordinates.lat,
+          realCoordinates.lng
+        );
+
+        document.getElementById(
+          "result"
+        ).innerText = `Distanz zum geheimen Ort: ${distance.toFixed(2)} km`;
+      }
+
+      // Berechne die Distanz zwischen zwei Punkten
+      function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius der Erde in Kilometern
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+      }
+
+      // Spiel starten
+      function startGame() {
+        getRandomLocationImage();
+      }
+
+      startGame();
+    </script>
+  </body>
+</html>

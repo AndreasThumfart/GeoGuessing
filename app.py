@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from flask_restful import Api, Resource
-from json import json
+import json
 
 app = Flask(__name__)
 api = Api(app)
@@ -36,12 +36,12 @@ class QuestionAPI(Resource):
     def get(self, id):
         # get question from DB
         question = {
-            "id":1,
+            "id": 1,
             "title": "Wo befindet sich der Stephansdom?",
-            "hint": "",
-            "img": "",
-            "lat": 16.2213,
-            "long": 40.3281 
+            "hint": "Tipp: Der Stephansdom befindet sich in der Hauptstadt von Österreich",
+            "img": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Wien_-_Stephansdom_%281%29.JPG",
+            "lat": 48.2082,  # Richtige Breite (Stephansdom)
+            "long": 16.3738  # Richtige Länge (Stephansdom)
         }
         return json.dumps(question, separators=(',', ':'))
 
