@@ -28,8 +28,6 @@ CREATE TABLE users (
 
 
 
-
-
 #Daten für die Sehenswürdigkeiten, inklusive Fragen
 sights = [
     ("Wo auf der Karte befindet sich der \"Eiffelturm\"?", "Eiffelturm", 48.8584, 2.2945, "https://de.wikipedia.org/wiki/Datei:Tour_Eiffel_Wikimedia_Commons.jpg"),
