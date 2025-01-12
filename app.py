@@ -34,7 +34,7 @@ id = 0
 
 class QuestionAPI(Resource):
     def get(self, id):
-        # get question from DB
+        # get question from DB by ID
         question = {
             "id": 1,
             "title": "Wo befindet sich der Stephansdom?",
@@ -51,6 +51,9 @@ api.add_resource(QuestionAPI, '/questions/<int:id>', endpoint = 'question')
 class GameAPI(Resource):
     def get(self):
         # get question from DB
+        # randomly select 10 questions from DB questions
+        # build json object
+        # game id = next ID in DB (count users rows+1)
         game = {
             "id":1,
             "questions":[1,2,3,4,5,67]
@@ -73,6 +76,8 @@ api.add_resource(GameAPI, '/games/', endpoint = 'game')
 class LeaderboardAPI(Resource):
     def get(self, id):
         # get question from DB
+        # connect to db
+        # get top 10 results from users table
         results = [{
             "id":1,
             "name" : "Andreas",
