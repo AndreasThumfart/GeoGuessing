@@ -59,6 +59,11 @@ class GameAPI(Resource):
         return json.dumps(game, separators=(',', ':'))
     def post(self, result):
         #save result to database
+        # extected json object
+        # {
+        #     "name":"Andreas",
+        #     "points":100
+        # }
         response = "ok"
         return response
 
@@ -71,11 +76,13 @@ class LeaderboardAPI(Resource):
         results = [{
             "id":1,
             "name" : "Andreas",
+            "date": "2025-01-03",
             "points" : 80
         },
         {
             "id":2,
             "name" : "Philipp",
+            "date": "2025-01-12",
             "points" : 100
         }
         ]
