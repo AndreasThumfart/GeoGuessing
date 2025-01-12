@@ -82,4 +82,4 @@ class LeaderboardAPI(Resource):
         return json.dumps(results, separators=(',', ':'))
         
 
-api.add_resource(QuestionAPI, '/leaderboard/', endpoint = 'leaderboard')
+api.add_resource(LeaderboardAPI, '/leaderboard/', endpoint = 'leaderboard')
