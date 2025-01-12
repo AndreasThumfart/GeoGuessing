@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask_restful import Api, Resource
 import json
+import GeoGuessing
 
 app = Flask(__name__)
 api = Api(app)
@@ -35,14 +36,15 @@ id = 0
 class QuestionAPI(Resource):
     def get(self, id):
         # get question from DB by ID
-        question = {
-            "id": 1,
-            "title": "Wo befindet sich der Stephansdom?",
-            "hint": "Tipp: Der Stephansdom befindet sich in der Hauptstadt von Österreich",
-            "img": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Wien_-_Stephansdom_%281%29.JPG",
-            "lat": 48.2082,  # Richtige Breite (Stephansdom)
-            "long": 16.3738  # Richtige Länge (Stephansdom)
-        }
+        # question = {
+        #     "id": 1,
+        #     "title": "Wo befindet sich der Stephansdom?",
+        #     "hint": "Tipp: Der Stephansdom befindet sich in der Hauptstadt von Österreich",
+        #     "img": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Wien_-_Stephansdom_%281%29.JPG",
+        #     "lat": 48.2082,  # Richtige Breite (Stephansdom)
+        #     "long": 16.3738  # Richtige Länge (Stephansdom)
+        # }
+        question = GeoGuessing.Questions.getQuestion(id)
         return json.dumps(question, separators=(',', ':'))
 
 
@@ -54,11 +56,12 @@ class GameAPI(Resource):
         # randomly select 10 questions from DB questions
         # build json object
         # game id = next ID in DB (count users rows+1)
-        game = {
-            "id":1,
-            "questions":[1,2,3,4,5,67]
+        # game = {
+        #     "id":1,
+        #     "questions":[1,2,3,4,5,67]
             
-        }
+        # }
+        game = GeoGuessing.Games.createGame()
         return json.dumps(game, separators=(',', ':'))
     def post(self, result):
         #save result to database
@@ -74,24 +77,30 @@ class GameAPI(Resource):
 api.add_resource(GameAPI, '/games/', endpoint = 'game')
 
 class LeaderboardAPI(Resource):
-    def get(self, id):
+    def get(self):
         # get question from DB
         # connect to db
         # get top 10 results from users table
-        results = [{
-            "id":1,
-            "name" : "Andreas",
-            "date": "2025-01-03",
-            "points" : 80
-        },
-        {
-            "id":2,
-            "name" : "Philipp",
-            "date": "2025-01-12",
-            "points" : 100
-        }
-        ]
-        return json.dumps(results, separators=(',', ':'))
+        # results = [{
+        #     "id":1,
+        #     "name" : "Andreas",
+        #     "date": "2025-01-03",
+        #     "points" : 80
+        # },
+        # {
+        #     "id":2,
+        #     "name" : "Philipp",
+        #     "date": "2025-01-12",
+        #     "points" : 100
+        # }
+        # ]
+
+        leaderboard = GeoGuessing.Games.getLeaderboard()
+
+        return json.dumps(leaderboard, separators=(',', ':'))
         
 
 api.add_resource(LeaderboardAPI, '/leaderboard/', endpoint = 'leaderboard')
+
+
+
