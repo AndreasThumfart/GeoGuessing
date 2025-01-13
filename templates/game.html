@@ -83,6 +83,7 @@
     <div id="controls">
       <button onclick="checkGuess()">Tipp abgeben</button>
       <p id="result"></p>
+      <p id="points"></p>
     </div>
 
     <div id="map"></div>
@@ -103,13 +104,17 @@
             return response.json();
           })
           .then((data) => {
-            const question = JSON.parse(data);
+            // Die API liefert einen JSON-String, daher müssen wir ihn zuerst parsen
+            const parsedData = JSON.parse(data)[0];
 
             // Setze Bild, Titel, Hinweis und Standortdaten
-            document.getElementById("place-image").src = question.img;
-            document.getElementById("title").innerText = question.title;
-            document.getElementById("hint").innerText = question.hint;
-            realCoordinates = { lat: question.lat, lng: question.long };
+            document.getElementById("place-image").src = parsedData.image_url;
+            document.getElementById("title").innerText = parsedData.title;
+            document.getElementById("hint").innerText = parsedData.hint;
+            realCoordinates = {
+              lat: parsedData.latitude,
+              lng: parsedData.longitude,
+            };
 
             console.log("Geheimer Ort:", realCoordinates);
             initMap();
@@ -156,9 +161,12 @@
           realCoordinates.lng
         );
 
+        const points = calculatePoints(distance);
+
         document.getElementById(
           "result"
         ).innerText = `Distanz zum geheimen Ort: ${distance.toFixed(2)} km`;
+        document.getElementById("points").innerText = `Punkte: ${points}`;
       }
 
       // Berechne die Distanz zwischen zwei Punkten
@@ -174,6 +182,13 @@
             Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
+      }
+
+      // Berechne die Punkte basierend auf der Distanz
+      function calculatePoints(distance) {
+        if (distance <= 0) return 5000; // Maximalpunktzahl
+        if (distance >= 500) return 0; // Keine Punkte
+        return Math.round(5000 * (1 - distance / 500)); // Lineare Interpolation
       }
 
       // Spiel starten
