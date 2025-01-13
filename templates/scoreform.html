@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaderboard Eintrag</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f9f9f9;
+      }
+
+      .container {
+        text-align: center;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      }
+
+      h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 18px;
+        margin-bottom: 20px;
+      }
+
+      input {
+        font-size: 16px;
+        padding: 10px;
+        margin-bottom: 20px;
+        width: calc(100% - 22px);
+        max-width: 300px;
+      }
+
+      button {
+        font-size: 16px;
+        padding: 10px 20px;
+        margin: 5px;
+        cursor: pointer;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Leaderboard Eintrag</h1>
+      <p id="points-display">Gesamtpunkte: 0</p>
+      <input type="text" id="player-name" placeholder="Dein Name" />
+      <br />
+      <button id="submit-button" disabled onclick="submitScore()">Eintragen</button>
+      <button onclick="cancelEntry()">Abbrechen</button>
+    </div>
+
+    <script>
+      // Hole die Punkte aus der URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const points = urlParams.get('points');
+      document.getElementById('points-display').innerText = `Gesamtpunkte: ${points}`;
+
+      const nameInput = document.getElementById('player-name');
+      const submitButton = document.getElementById('submit-button');
+
+      // Aktiviere den Button nur, wenn der Name gültig ist
+      nameInput.addEventListener('input', () => {
+        const name = nameInput.value.trim();
+        const isValid = /^[a-zA-ZäöüÄÖÜß]{2,}$/.test(name); // Nur Buchstaben, mindestens 2 Zeichen
+        submitButton.disabled = !isValid;
+      });
+
+      // Eintrag speichern und zur Scoreboard-Seite weiterleiten
+      async function submitScore() {
+        const name = nameInput.value.trim();
+
+        // Sende die Daten per POST an die API
+        try {
+          const response = await fetch('http://127.0.0.1:5000/games', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: name,
+              points: parseInt(points, 10),
+            }),
+          });
+
+          if (response.ok) {
+            // Weiterleitung zur Scoreboard-Seite
+            window.location.href = 'scoreboard.html';
+          } else {
+            console.error('Fehler beim Speichern des Eintrags:', response.statusText);
+            alert('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
+          }
+        } catch (error) {
+          console.error('Fehler beim Verbindungsaufbau:', error);
+          alert('Ein Netzwerkfehler ist aufgetreten. Bitte versuche es erneut.');
+        }
+      }
+
+      // Abbruch und Rückkehr zur Startseite
+      function cancelEntry() {
+        window.location.href = 'index.html';
+      }
+    </script>
+  </body>
+</html>

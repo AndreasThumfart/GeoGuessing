@@ -113,7 +113,7 @@
     <div id="end-game">
       <p id="total-points">Gesamtpunkte: 0</p>
       <button onclick="restartGame()">Spiel neu starten</button>
-      <button onclick="enterScoreboard()">Im Scoreboard eintragen</button>
+      <button onclick="goToScoreForm()">Im Leaderboard eintragen</button>
     </div>
 
     <div id="map"></div>
@@ -252,14 +252,15 @@
         }
       }
 
+      // Weiterleitung zur ScoreForm-Seite
+      function goToScoreForm() {
+        const url = `scoreform.html?points=${totalPoints}`;
+        window.location.href = url;
+      }
+
       // Spiel neu starten
       function restartGame() {
         location.reload();
-      }
-
-      // Platzhalter für Scoreboard-Funktion
-      function enterScoreboard() {
-        console.log("Scoreboard-Funktion wird implementiert.");
       }
 
       // Berechne die Distanz zwischen zwei Punkten
