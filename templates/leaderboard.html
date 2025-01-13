@@ -7,19 +7,16 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-        table, th, td {
-            border: 1px solid black;
-        }
         th, td {
+            border: 1px solid black;
             padding: 10px;
-            text-align: left;
+            text-align: center;
         }
         th {
             background-color: #f2f2f2;
@@ -28,7 +25,7 @@
 </head>
 <body>
     <h1>Leaderboard</h1>
-    <table>
+    <table id="leaderboardTable">
         <thead>
             <tr>
                 <th>ID</th>
@@ -37,55 +34,34 @@
                 <th>Points</th>
             </tr>
         </thead>
-        <tbody id="leaderboard-body">
-            <!-- Dynamic content will be inserted here -->
+        <tbody>
+            <!-- Die Daten werden hier dynamisch eingefügt -->
         </tbody>
     </table>
 
     <script>
-        // Fetch leaderboard data from the API
-        async function fetchLeaderboard() {
-            try {
-                const response = await fetch('http://127.0.0.1:5000/leaderboard/'); // Corrected endpoint
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const data = await response.json();
-                populateLeaderboard(JSON.parse(data)); // Parse JSON response
-            } catch (error) {
-                console.error('Error fetching leaderboard:', error);
-            }
-        }
-
-        // Populate the leaderboard table with data
-        function populateLeaderboard(data) {
-            const tbody = document.getElementById('leaderboard-body');
-            tbody.innerHTML = ''; // Clear any existing rows
-            data.forEach(player => {
-                const row = document.createElement('tr');
-
-                const idCell = document.createElement('td');
-                idCell.textContent = player.id;
-                row.appendChild(idCell);
-
-                const nameCell = document.createElement('td');
-                nameCell.textContent = player.name;
-                row.appendChild(nameCell);
-
-                const dateCell = document.createElement('td');
-                dateCell.textContent = player.date;
-                row.appendChild(dateCell);
-
-                const pointsCell = document.createElement('td');
-                pointsCell.textContent = player.points;
-                row.appendChild(pointsCell);
-
-                tbody.appendChild(row);
-            });
-        }
-
-        // Load leaderboard data when the page loads
-        window.onload = fetchLeaderboard;
+        // Abrufen der Daten von der API
+        fetch('http://127.0.0.1:5000/leaderboard/')
+            .then(response => response.json()) // Hole die Antwort als JSON
+            .then(data => {
+                // Da die API einen JSON-String liefert, müssen wir ihn noch einmal parsen
+                const parsedData = JSON.parse(data); 
+                
+                // Fülle die Tabelle mit den Daten
+                const tableBody = document.querySelector('#leaderboardTable tbody');
+                parsedData.forEach(entry => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${entry.game_id}</td>
+                        <td>${entry.username}</td>
+                        <td>${entry.game_date}</td>
+                        <td>${entry.game_points}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching leaderboard data:', error));
     </script>
 </body>
 </html>
+
