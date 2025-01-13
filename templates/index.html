@@ -63,12 +63,17 @@
 
     <!-- Start-Button -->
     <button id="start-button" onclick="startGame()">Spiel starten</button>
+    
+    <button id="start-button" onclick="navigateToLeaderboard()">Go to Leaderboard</button>
 
     <script>
       function startGame() {
         // Navigiere zu game.html
         window.location.href = "game.html";
       }
+      function navigateToLeaderboard() {
+            window.location.href = 'leaderboard.html';
+        }
     </script>
   </body>
 </html>
