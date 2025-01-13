@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_restful import Api, Resource
 import json
 import GeoGuessing
@@ -63,16 +63,16 @@ class GameAPI(Resource):
         # }
         game = GeoGuessing.Games.createGame()
         return json.dumps(game, separators=(',', ':'))
-    def post(self, result):
+    def post(self):
         #save result to database
         # extected json object
         # {
         #     "name":"Andreas",
         #     "points":100
         # }
-        response = "ok"
-        return response
 
+        game = request.json
+        GeoGuessing.Games.saveGame(game)
 
 api.add_resource(GameAPI, '/games/', endpoint = 'game')
 

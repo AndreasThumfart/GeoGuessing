@@ -34,10 +34,7 @@ class Games:
         """
         Save game to database
         """
-        gamesQuery = '''
-            INSERT INTO users
-
-            '''
+        gamesQuery = f"INSERT INTO users VALUES ({game.date.strftime("%Y-%m-%d")},{game.name},{game.points})"
         DbAccess.executeWriteQuery(gamesQuery)
 
 
@@ -51,6 +48,9 @@ class Games:
         return result       
 
 class Questions:
+    """
+    Questions class provides methodes to retrieve questions from the database
+    """
     def getQuestion(id):
         """
         Get a question by id
