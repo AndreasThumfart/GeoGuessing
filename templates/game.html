@@ -69,6 +69,29 @@
         color: #555;
         margin-bottom: 20px;
       }
+
+      #end-game {
+        display: none;
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      #end-game p {
+        font-size: 22px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      #end-game button {
+        font-size: 18px;
+        padding: 10px 20px;
+        margin: 10px;
+        cursor: pointer;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
     </style>
   </head>
   <body>
@@ -81,9 +104,16 @@
     </div>
 
     <div id="controls">
-      <button onclick="checkGuess()">Tipp abgeben</button>
+      <button id="submit-guess" onclick="checkGuess()">Tipp abgeben</button>
+      <button id="next-question" style="display: none;" onclick="loadNextQuestion()">Weiter</button>
       <p id="result"></p>
       <p id="points"></p>
+    </div>
+
+    <div id="end-game">
+      <p id="total-points">Gesamtpunkte: 0</p>
+      <button onclick="restartGame()">Spiel neu starten</button>
+      <button onclick="enterScoreboard()">Im Scoreboard eintragen</button>
     </div>
 
     <div id="map"></div>
@@ -93,10 +123,13 @@
       let realCoordinates = {}; // Koordinaten des echten Ortes
       let map;
       let guessMarker = null;
+      let gameQuestions = []; // Liste der Fragen
+      let currentQuestionIndex = 0; // Aktueller Index der Frage
+      let totalPoints = 0; // Gesamtpunkte
 
-      // Frage ein zufälliges Bild und Standortdaten von der Flask-API ab
-      function getRandomLocationImage() {
-        fetch(`${apiBaseUrl}/questions/1`) // Beispiel-ID: 1
+      // Lade die Spielinformationen von der Games-API
+      function loadGame() {
+        fetch(`${apiBaseUrl}/games/`)
           .then((response) => {
             if (!response.ok) {
               throw new Error("Fehler bei der API-Anfrage");
@@ -104,7 +137,30 @@
             return response.json();
           })
           .then((data) => {
-            // Die API liefert einen JSON-String, daher müssen wir ihn zuerst parsen
+            const parsedData = JSON.parse(data);
+            gameQuestions = parsedData.questions; // Speichere die Fragen-ID-Liste
+
+            if (gameQuestions.length > 0) {
+              getRandomLocationImage(gameQuestions[currentQuestionIndex]); // Nutze die erste Frage-ID
+            } else {
+              console.error("Keine Fragen verfügbar");
+            }
+          })
+          .catch((error) => {
+            console.error("Fehler beim Laden der Spielinformationen:", error);
+          });
+      }
+
+      // Frage ein zufälliges Bild und Standortdaten von der Flask-API ab
+      function getRandomLocationImage(questionId) {
+        fetch(`${apiBaseUrl}/questions/${questionId}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Fehler bei der API-Anfrage");
+            }
+            return response.json();
+          })
+          .then((data) => {
             const parsedData = JSON.parse(data)[0];
 
             // Setze Bild, Titel, Hinweis und Standortdaten
@@ -162,11 +218,48 @@
         );
 
         const points = calculatePoints(distance);
+        totalPoints += points; // Addiere die Punkte zur Gesamtpunktzahl
 
         document.getElementById(
           "result"
         ).innerText = `Distanz zum geheimen Ort: ${distance.toFixed(2)} km`;
         document.getElementById("points").innerText = `Punkte: ${points}`;
+
+        // Zeige den Weiter-Button an
+        document.getElementById("next-question").style.display = "block";
+        document.getElementById("submit-guess").style.display = "none";
+      }
+
+      // Lade die nächste Frage
+      function loadNextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < gameQuestions.length) {
+          getRandomLocationImage(gameQuestions[currentQuestionIndex]);
+          document.getElementById("result").innerText = "";
+          document.getElementById("points").innerText = "";
+          document.getElementById("next-question").style.display = "none";
+          document.getElementById("submit-guess").style.display = "block";
+
+          if (guessMarker) {
+            map.removeLayer(guessMarker);
+            guessMarker = null;
+          }
+        } else {
+          // Spielende, zeige die Gesamtpunkte an
+          document.getElementById("controls").style.display = "none";
+          document.getElementById("end-game").style.display = "block";
+          document.getElementById("total-points").innerText = `Gesamtpunkte: ${totalPoints}`;
+        }
+      }
+
+      // Spiel neu starten
+      function restartGame() {
+        location.reload();
+      }
+
+      // Platzhalter für Scoreboard-Funktion
+      function enterScoreboard() {
+        console.log("Scoreboard-Funktion wird implementiert.");
       }
 
       // Berechne die Distanz zwischen zwei Punkten
@@ -193,7 +286,7 @@
 
       // Spiel starten
       function startGame() {
-        getRandomLocationImage();
+        loadGame();
       }
 
       startGame();
