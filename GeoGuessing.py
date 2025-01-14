@@ -6,27 +6,13 @@ class Games:
     """
     Games class provides all functions for games and leaderboard
     """
-    def getGamesCount():
-        """
-        Get the absolute number of games stored in the DB
-        """
-        query = "SELECT count(*) FROM users"      
-        result = DbAccess.executeQuery(query)
-        count = result[0]["count(*)"]
-        return int(count)
-    
     def createGame():
         """
         Create a new game and generate random numbers for the questions 
         """
         questionsCount = Questions.getQuestionCount()
-        gamesCount = Games.getGamesCount()
-        
-        gameId = gamesCount +1
         questionIds = random.sample(range(0, questionsCount ), 10)
-
         game = {
-            "id": gameId,
             "questions": questionIds
         }
         return game
@@ -37,7 +23,6 @@ class Games:
         """
         today = datetime.datetime.today()
         formatted_date = today.strftime('%Y-%m-%d')
-
         gamesQuery = f'INSERT INTO users (game_date,username,game_points) VALUES ("{formatted_date}","{game["name"]}",{game["points"]})'
         DbAccess.executeWriteQuery(gamesQuery)
 
