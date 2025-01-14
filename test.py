@@ -1,12 +1,19 @@
+
+import GeoGuessing
+
 #
 # Python console app for debugging methods and DB calls
 #
 
-
-import GeoGuessing
-
 # rows = GeoGuessing.Games.getLeaderboard()
+# rows = GeoGuessing.Games.getGamesCount()
 
-rows = GeoGuessing.Games.getGamesCount()
+game = {
+    "name": "Andr",
+    "points": 111
+}
 
-print(rows)
+GeoGuessing.Games.saveGame(game)
+
+
+#print(rows)
