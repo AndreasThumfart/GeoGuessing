@@ -34,7 +34,7 @@ class Games:
         """
         Save game to database
         """
-        gamesQuery = f"INSERT INTO users VALUES ({game.date.strftime("%Y-%m-%d")},{game.name},{game.points})"
+        gamesQuery = f'INSERT INTO users VALUES ({game.date.strftime("%Y:%m:%d")},{game.name},{game.points})'
         DbAccess.executeWriteQuery(gamesQuery)
 
 
