@@ -34,7 +34,7 @@ class Games:
         """
         Save game to database
         """
-        gamesQuery = f'INSERT INTO users VALUES ({game.date.strftime("%Y:%m:%d")},{game.name},{game.points})'
+        gamesQuery = f'INSERT INTO users VALUES ({game["id"]},"{game["date"]}","{game["name"]}",{game["points"]})'
         DbAccess.executeWriteQuery(gamesQuery)
 
 
@@ -94,7 +94,7 @@ class DbAccess:
         """
         conn = sqlite3.connect('geo_guessingDB.db')
         cursor = conn.cursor()
-        result = cursor.execute(query)
+        cursor.execute(query)
         conn.commit()
         conn.close()
-        return result
+        
