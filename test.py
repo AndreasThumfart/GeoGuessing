@@ -1,4 +1,4 @@
-import datetime
+
 import GeoGuessing
 
 #
@@ -9,8 +9,6 @@ import GeoGuessing
 # rows = GeoGuessing.Games.getGamesCount()
 
 game = {
-    "id":4,
-    "date": "2025-01-14",
     "name": "Andr",
     "points": 111
 }

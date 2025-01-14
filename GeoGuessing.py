@@ -1,5 +1,6 @@
 import sqlite3
 import random
+import datetime
 
 class Games:
     """
@@ -34,7 +35,10 @@ class Games:
         """
         Save game to database
         """
-        gamesQuery = f'INSERT INTO users VALUES ({game["id"]},"{game["date"]}","{game["name"]}",{game["points"]})'
+        today = datetime.datetime.today()
+        formatted_date = today.strftime('%Y-%m-%d')
+
+        gamesQuery = f'INSERT INTO users (game_date,username,game_points) VALUES ("{formatted_date}","{game["name"]}",{game["points"]})'
         DbAccess.executeWriteQuery(gamesQuery)
 
 

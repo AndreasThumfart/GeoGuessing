@@ -21,29 +21,12 @@ if __name__ == '__main__':
 users = []
 id = 0
 
-# class UserAPI(Resource):
-#     def get(self, name):
-#         return "test successfull"
-#     def post(self, name):
-#         global id
-#         user = {'name' : name, 'id' : id}
-#         id += 1
-#         users.append(user)
-#         return user
-
-# api.add_resource(UserAPI, '/users/<string:name>', endpoint = 'user')
-
 class QuestionAPI(Resource):
+    """
+    Question API to provide question details for the front end
+    """
     def get(self, id):
         # get question from DB by ID
-        # question = {
-        #     "id": 1,
-        #     "title": "Wo befindet sich der Stephansdom?",
-        #     "hint": "Tipp: Der Stephansdom befindet sich in der Hauptstadt von Österreich",
-        #     "img": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Wien_-_Stephansdom_%281%29.JPG",
-        #     "lat": 48.2082,  # Richtige Breite (Stephansdom)
-        #     "long": 16.3738  # Richtige Länge (Stephansdom)
-        # }
         question = GeoGuessing.Questions.getQuestion(id)
         return json.dumps(question, separators=(',', ':'))
 
@@ -51,52 +34,27 @@ class QuestionAPI(Resource):
 api.add_resource(QuestionAPI, '/questions/<int:id>', endpoint = 'question')
 
 class GameAPI(Resource):
+    """
+    Game API to start and safe game
+    """
     def get(self):
         # get question from DB
-        # randomly select 10 questions from DB questions
-        # build json object
-        # game id = next ID in DB (count users rows+1)
-        # game = {
-        #     "id":1,
-        #     "questions":[1,2,3,4,5,67]
-            
-        # }
         game = GeoGuessing.Games.createGame()
         return json.dumps(game, separators=(',', ':'))
     def post(self):
         #save result to database
-        # extected json object
-        # {
-        #     "name":"Andreas",
-        #     "points":100
-        # }
-
         game = request.json
         GeoGuessing.Games.saveGame(game)
 
 api.add_resource(GameAPI, '/games/', endpoint = 'game')
 
 class LeaderboardAPI(Resource):
+    """
+    Leaderboard API to get the top 10 players
+    """
     def get(self):
         # get question from DB
-        # connect to db
-        # get top 10 results from users table
-        # results = [{
-        #     "id":1,
-        #     "name" : "Andreas",
-        #     "date": "2025-01-03",
-        #     "points" : 80
-        # },
-        # {
-        #     "id":2,
-        #     "name" : "Philipp",
-        #     "date": "2025-01-12",
-        #     "points" : 100
-        # }
-        # ]
-
         leaderboard = GeoGuessing.Games.getLeaderboard()
-
         return json.dumps(leaderboard, separators=(',', ':'))
         
 
