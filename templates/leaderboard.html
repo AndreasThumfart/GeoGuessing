@@ -26,6 +26,7 @@
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
             max-width: 800px;
             width: 100%;
+            position: relative;
         }
 
         .leaderboard-container h1 {
@@ -65,10 +66,31 @@
         tr:hover td {
             background-color: rgba(0, 0, 0, 0.8);
         }
+
+        .back-button {
+            font-size: 1rem;
+            padding: 8px 16px;
+            background-color: #4caf50;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .back-button:hover {
+            background-color: darkgreen;
+        }
     </style>
 </head>
 <body>
     <div class="leaderboard-container">
+        <a href="index.html" class="back-button">Zurück</a>
         <h1>Leaderboard</h1>
         <table id="leaderboardTable">
             <thead>
@@ -84,26 +106,6 @@
             </tbody>
         </table>
     </div>
-
-    <button 
-  onclick="window.location.href='/';" 
-  style="
-    display: block; 
-    margin: 20px auto; 
-    padding: 10px 20px; 
-    font-size: 18px; 
-    background-color: #4caf50; 
-    color: white; 
-    border: none; 
-    border-radius: 5px; 
-    cursor: pointer; 
-    text-align: center; 
-    width: 200px;"
->
-  zum Homepage
-</button>
-
-
 
     <script>
         // Abrufen der Daten von der API
