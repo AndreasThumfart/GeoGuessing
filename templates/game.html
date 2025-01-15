@@ -13,7 +13,7 @@
       body {
         margin: 0;
         padding: 0;
-        font-family: 'Roboto', sans-serif;
+        font-family: "Roboto", sans-serif;
         background: url("/static/images/BG.webp") no-repeat center center fixed;
         background-size: cover;
         display: flex;
@@ -28,10 +28,10 @@
         padding: 40px;
         border-radius: 12px;
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-        max-width: 1000px;
+        max-width: 1020px;
         width: 95%;
         text-align: center;
-        margin-bottom: 10px; 
+        margin-bottom: 10px;
         margin-top: 10px;
       }
 
@@ -64,9 +64,9 @@
       }
 
       #map {
-        width: 98%; 
-        max-width: 1100px; 
-        height: 500px; 
+        width: 98%;
+        max-width: 1100px;
+        height: 500px;
         border-radius: 12px;
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
         margin-bottom: 20px;
@@ -119,12 +119,18 @@
 
       <div id="controls">
         <button id="submit-guess" onclick="checkGuess()">Tipp abgeben</button>
-        <button id="next-question" style="display: none;" onclick="loadNextQuestion()">Weiter</button>
+        <button
+          id="next-question"
+          style="display: none"
+          onclick="loadNextQuestion()"
+        >
+          Weiter
+        </button>
         <p id="result"></p>
         <p id="points"></p>
       </div>
 
-      <div id="end-controls" style="display: none;">
+      <div id="end-controls" style="display: none">
         <p id="total-points">Gesamtpunkte: 0</p>
         <button onclick="restartGame()">Spiel neu starten</button>
         <button onclick="goToScoreForm()">Im Leaderboard eintragen</button>
@@ -263,6 +269,11 @@
           // Spielende, zeige die Gesamtpunkte und Buttons in der oberen Box an
           document.getElementById("controls").style.display = "none";
           document.getElementById("end-controls").style.display = "block";
+
+          // Aktualisiere die Gesamtpunkte
+          document.getElementById(
+            "total-points"
+          ).innerText = `Gesamtpunkte: ${totalPoints}`;
         }
       }
 
