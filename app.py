@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, abort
 from flask_restful import Api, Resource
+from flask_cors import CORS
 import json
 import GeoGuessing
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 
 
 @app.route('/', defaults={'page':None})
@@ -16,10 +18,6 @@ def home(page):
         return render_template(page)
 if __name__ == '__main__':
    app.run()
-
-
-users = []
-id = 0
 
 class QuestionAPI(Resource):
     """
