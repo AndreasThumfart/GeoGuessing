@@ -58,6 +58,7 @@ I have looked into Flask and got it running. However, to make it work, you need 
    ```bash
    python -m pip install flask
    python -m pip install flask-restful
+   python -m pip install flask-cors
    ```
 4. Start the app with:
    ```bash
